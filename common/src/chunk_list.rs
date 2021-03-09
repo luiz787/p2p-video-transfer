@@ -21,6 +21,16 @@ impl ChunkListMessage {
         })
     }
 
+    pub fn from_chunks(message_type: u16, chunks: Vec<u16>) -> ChunkListMessage {
+        ChunkListMessage {
+            message_type,
+            chunk_list: ChunkList {
+                amount_of_chunks: chunks.len() as u16,
+                chunks,
+            },
+        }
+    }
+
     pub fn serialize(&self) -> Vec<u8> {
         let mut data: Vec<u8> = Vec::new();
         data.extend(self.message_type.to_be_bytes().iter());
@@ -43,12 +53,13 @@ impl ChunkList {
         }
 
         let amount_of_chunks = byte_utils::u16_from_u8_array(&message[0..2]);
-        let raw_bytes = &message[2..];
+        let slice_end = (amount_of_chunks * 2 + 2) as usize;
+        let raw_bytes = &message[2..slice_end];
 
         let mut chunks = Vec::new();
 
         for i in (0..raw_bytes.len()).step_by(2) {
-            let val = &raw_bytes[i..i + 1];
+            let val = &raw_bytes[i..i + 2];
             let val = byte_utils::u16_from_u8_array(val);
             chunks.push(val);
         }
