@@ -3,7 +3,7 @@ use std::{env, net::SocketAddr};
 #[derive(Debug)]
 pub struct ClientConfig {
     pub address: SocketAddr,
-    pub chunks: Vec<u32>,
+    pub chunks: Vec<u16>,
 }
 
 impl ClientConfig {
@@ -18,7 +18,7 @@ impl ClientConfig {
 
         let chunks = chunks
             .split(",")
-            .map(|chunk| chunk.parse::<u32>().expect("Failed to parse chunk numbers"))
+            .map(|chunk| chunk.parse::<u16>().expect("Failed to parse chunk numbers"))
             .collect();
 
         return ClientConfig { address, chunks };
