@@ -27,4 +27,23 @@ impl ResponseInfo {
             chunk,
         })
     }
+
+    pub fn from_chunk(chunk_id: u16, chunk: Vec<u8>) -> ResponseInfo {
+        ResponseInfo {
+            message_type: 5,
+            chunk_id,
+            chunk_size: chunk.len() as u16,
+            chunk,
+        }
+    }
+
+    pub fn serialize(&mut self) -> Vec<u8> {
+        let mut data: Vec<u8> = Vec::new();
+        data.extend(self.message_type.to_be_bytes().iter());
+        data.extend(self.chunk_id.to_be_bytes().iter());
+        data.extend(self.chunk_size.to_be_bytes().iter());
+        data.append(&mut self.chunk);
+
+        data
+    }
 }
