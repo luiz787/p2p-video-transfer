@@ -105,11 +105,13 @@ fn handle_hello(
     }
     println!();
 
-    let message = ChunkListMessage::from_chunks(3, available_chunks);
-    let amt = udp_socket
-        .send_to(&message.serialize(), remote_address)
-        .expect("Failed to communicate with client");
-    println!("Sent {} bytes", amt);
+    if !available_chunks.is_empty() {
+        let message = ChunkListMessage::from_chunks(3, available_chunks);
+        let amt = udp_socket
+            .send_to(&message.serialize(), remote_address)
+            .expect("Failed to communicate with client");
+        println!("Sent {} bytes", amt);
+    }
 }
 
 fn handle_get(
