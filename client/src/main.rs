@@ -117,7 +117,6 @@ fn handle_chunk_info(
     remote_addr: &SocketAddr,
     control_map: &mut HashMap<u16, ChunkControlData>,
 ) {
-    // TODO: guarantee that GET is never sent twice for same chunk
     println!(
         "Got ChunkInfo message! Peer {} has {} chunks",
         remote_addr,
@@ -148,14 +147,16 @@ fn handle_chunk_info(
             }
         }
 
-        let get_message = ChunkListMessage::from_chunks(4, needed_chunks.clone());
+        if !needed_chunks.is_empty() {
+            let get_message = ChunkListMessage::from_chunks(4, needed_chunks.clone());
 
-        udp_socket
-            .send_to(&get_message.serialize(), remote_addr)
-            .expect("Falha ao enviar mensagem");
+            udp_socket
+                .send_to(&get_message.serialize(), remote_addr)
+                .expect("Falha ao enviar mensagem");
 
-        for chunk in &needed_chunks {
-            control_map.get_mut(chunk).expect("Unknown error").sent_get = true;
+            for chunk in &needed_chunks {
+                control_map.get_mut(chunk).expect("Unknown error").sent_get = true;
+            }
         }
     }
 }

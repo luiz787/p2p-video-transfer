@@ -39,7 +39,13 @@ fn main() {
                 handle_get(&chunks_map, &udp_socket, data, &remote_address);
             }
             Message::Query(query_info) => {
-                handle_query(&chunks_map, &udp_socket, query_info, &remote_address);
+                handle_query(
+                    &chunks_map,
+                    &udp_socket,
+                    query_info,
+                    &config,
+                    &remote_address,
+                );
             }
             _ => {}
         }
@@ -178,7 +184,8 @@ fn handle_query(
     chunks_map: &HashMap<u16, Vec<u8>>,
     udp_socket: &UdpSocket,
     data: QueryInfo,
-    _r: &SocketAddr,
+    config: &PeerConfig,
+    remote_address: &SocketAddr,
 ) {
     println!(
         "Got QUERY message! Client is asking for {} chunks",
@@ -195,15 +202,13 @@ fn handle_query(
             .join(",")
     );
 
-    let mut available_chunks = Vec::new();
-    print!("Available chunks: ");
-    for chunk in &data.chunk_info.chunks {
-        if chunks_map.contains_key(chunk) {
-            print!("{}", chunk);
-            available_chunks.push(*chunk);
-        }
-    }
-    println!();
+    let available_chunks: Vec<u16> = data
+        .chunk_info
+        .chunks
+        .iter()
+        .filter(|&chunk| chunks_map.contains_key(chunk))
+        .map(|&chunk| chunk)
+        .collect();
 
     if !available_chunks.is_empty() {
         let message = ChunkListMessage::from_chunks(3, available_chunks);
@@ -211,5 +216,32 @@ fn handle_query(
             .send_to(&message.serialize(), data.address)
             .expect("Failed to communicate with client");
         println!("Sent {} bytes to {}", amt, data.address);
+    }
+
+    let message = data.with_decremented_ttl();
+    if message.peer_ttl > 0 {
+        println!("Sending query message");
+
+        println!(
+            "{}",
+            message
+                .chunk_info
+                .chunks
+                .iter()
+                .map(|c| c.to_string())
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+
+        config
+            .known_peers
+            .iter()
+            .filter(|&peer| peer != remote_address)
+            .for_each(|peer| {
+                let amt = udp_socket
+                    .send_to(&message.serialize(), peer)
+                    .expect("Failed to communicate with client");
+                println!("Sent {} bytes", amt);
+            });
     }
 }

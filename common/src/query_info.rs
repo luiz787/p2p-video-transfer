@@ -52,6 +52,15 @@ impl QueryInfo {
         }
     }
 
+    pub fn with_decremented_ttl(&self) -> QueryInfo {
+        QueryInfo {
+            message_type: self.message_type,
+            address: self.address,
+            chunk_info: self.chunk_info.clone(),
+            peer_ttl: self.peer_ttl - 1,
+        }
+    }
+
     pub fn serialize(&self) -> Vec<u8> {
         let mut data: Vec<u8> = Vec::new();
         data.extend(self.message_type.to_be_bytes().iter());
