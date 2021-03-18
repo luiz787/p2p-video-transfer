@@ -21,9 +21,7 @@ impl PeerConfig {
 
         let mut known_peers = Vec::new();
         while let Some(addr) = args.next() {
-            let peer_address: SocketAddr = format!("{}:{}", addr, port)
-                .parse()
-                .expect("Failed to parse address");
+            let peer_address: SocketAddr = addr.parse().expect("Failed to parse address");
 
             known_peers.push(peer_address);
         }

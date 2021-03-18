@@ -39,6 +39,8 @@ impl ChunkListMessage {
         data
     }
 }
+
+#[derive(Clone)]
 pub struct ChunkList {
     pub amount_of_chunks: u16,
     pub chunks: Vec<u16>,

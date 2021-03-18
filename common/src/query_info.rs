@@ -1,6 +1,7 @@
 use crate::byte_utils;
 use crate::chunk_list::ChunkList;
-use std::net::SocketAddr;
+use core::panic;
+use std::net::{IpAddr, SocketAddr};
 
 pub struct QueryInfo {
     pub message_type: u16,
@@ -18,6 +19,9 @@ impl QueryInfo {
         }
 
         let message_type = byte_utils::u16_from_u8_array(&message[0..2]);
+
+        println!("[DEBUG] MessageType={}", message_type);
+
         let address = &message[2..8];
         let ip_octets = &address[0..4];
         let port = byte_utils::u16_from_u8_array(&address[4..6]);
@@ -37,5 +41,31 @@ impl QueryInfo {
             peer_ttl,
             chunk_info,
         })
+    }
+
+    pub fn from_chunks(address: SocketAddr, chunk_info: ChunkList) -> QueryInfo {
+        QueryInfo {
+            message_type: 2,
+            address,
+            peer_ttl: 3,
+            chunk_info,
+        }
+    }
+
+    pub fn serialize(&self) -> Vec<u8> {
+        let mut data: Vec<u8> = Vec::new();
+        data.extend(self.message_type.to_be_bytes().iter());
+
+        let ip_octets = match self.address.ip() {
+            IpAddr::V4(ip) => ip.octets(),
+            _ => panic!("IPv6 not supported"),
+        };
+
+        data.append(&mut ip_octets.to_vec());
+        data.extend(self.address.port().to_be_bytes().iter());
+        data.extend(self.peer_ttl.to_be_bytes().iter());
+        data.append(&mut self.chunk_info.serialize());
+
+        data
     }
 }

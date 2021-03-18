@@ -18,7 +18,7 @@ fn main() {
     let config = ClientConfig::new(env::args());
     let mut control_map = create_control_map(&config);
 
-    let udp_socket = UdpSocket::bind(("127.0.0.1", 0)).unwrap();
+    let udp_socket = UdpSocket::bind(("0.0.0.0", 0)).unwrap();
 
     let local_ip = udp_socket
         .local_addr()
@@ -29,10 +29,6 @@ fn main() {
     udp_socket
         .set_nonblocking(true)
         .expect("Failed to set socket to nonblocking mode.");
-
-    udp_socket
-        .connect(config.address)
-        .expect("Falha ao conectar com o peer remoto");
 
     let message = ChunkListMessage::from_chunks(1, config.chunks);
     udp_socket
