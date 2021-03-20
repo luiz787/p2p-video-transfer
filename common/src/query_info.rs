@@ -14,7 +14,7 @@ impl QueryInfo {
     pub fn new(message: &[u8], bytes_read: usize) -> Result<QueryInfo, &'static str> {
         if bytes_read < 12 {
             return Err(
-                "Foram lidos menos de 12 bytes para uma mensagem que deve conter no mínimo 12 bytes",
+                "Less than 12 bytes read for message that should contain at least 12 bytes.",
             );
         }
 

@@ -9,7 +9,7 @@ impl ChunkListMessage {
     pub fn new(message: &[u8], bytes_read: usize) -> Result<ChunkListMessage, &'static str> {
         if bytes_read < 4 {
             return Err(
-                "Foram lidos menos de 4 bytes para uma mensagem que deve conter no mínimo 4 bytes",
+                "Less than 4 bytes read for message that should contain at least 4 bytes.",
             );
         }
 

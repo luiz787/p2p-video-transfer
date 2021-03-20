@@ -11,14 +11,16 @@ impl ResponseInfo {
     pub fn new(message: &[u8], bytes_read: usize) -> Result<ResponseInfo, &'static str> {
         if bytes_read < 6 {
             return Err(
-                "Foram lidos menos de 6 bytes para uma mensagem que deve conter no mínimo 6 bytes",
+                "Less than 6 bytes read for message that should contain at least 6 bytes.",
             );
         }
 
         let message_type = byte_utils::u16_from_u8_array(&message[0..2]);
         let chunk_id = byte_utils::u16_from_u8_array(&message[2..4]);
         let chunk_size = byte_utils::u16_from_u8_array(&message[4..6]);
-        let chunk = Vec::from(&message[6..]);
+        let chunk = Vec::from(&message[6..bytes_read]);
+
+        println!("Chunk size is: {}. {} bytes read.", chunk.len(), bytes_read);
 
         Ok(ResponseInfo {
             message_type,
