@@ -13,7 +13,7 @@ use chunk_manager::ChunkManager;
 fn main() {
     let config = PeerConfig::new(env::args());
     let chunk_manager = ChunkManager::new(&config);
-    let udp_socket = UdpSocket::bind((config.ip, config.port)).unwrap();
+    let udp_socket = UdpSocket::bind(config.address).unwrap();
 
     println!("UDP bound to {}", udp_socket.local_addr().unwrap().port());
 
