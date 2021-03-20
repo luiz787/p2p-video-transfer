@@ -1,7 +1,9 @@
 use std::{env, net::SocketAddr};
+use std::net::Ipv4Addr;
 
 #[derive(Debug)]
 pub struct PeerConfig {
+    pub ip: Ipv4Addr,
     pub port: u16,
     pub kv_file_path: String,
     pub known_peers: Vec<SocketAddr>,
@@ -10,6 +12,12 @@ pub struct PeerConfig {
 impl PeerConfig {
     pub fn new(mut args: env::Args) -> PeerConfig {
         args.next();
+
+        let ip = args
+            .next()
+            .expect("IP not specified")
+            .parse()
+            .expect("Unable to parse IP");
 
         let port = args
             .next()
@@ -27,6 +35,7 @@ impl PeerConfig {
         }
 
         return PeerConfig {
+            ip,
             port,
             kv_file_path,
             known_peers,

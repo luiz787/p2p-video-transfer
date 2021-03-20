@@ -11,7 +11,7 @@ use peer_config::PeerConfig;
 fn main() {
     let config = PeerConfig::new(env::args());
     let chunks_map = process_chunks(&config);
-    let udp_socket = UdpSocket::bind(("0.0.0.0", config.port)).unwrap();
+    let udp_socket = UdpSocket::bind((config.ip, config.port)).unwrap();
 
     println!("UDP bound to {}", udp_socket.local_addr().unwrap().port());
 
