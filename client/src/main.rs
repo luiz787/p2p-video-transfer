@@ -3,7 +3,8 @@ use core::panic;
 use std::{
     collections::HashMap,
     env,
-    io::ErrorKind,
+    fs::File,
+    io::{ErrorKind, Write},
     net::{SocketAddr, UdpSocket},
     time::{Duration, Instant},
 };
@@ -214,4 +215,13 @@ fn handle_response(
 
     println!("{}", content);
     logger.log(content);
+
+    save_chunk(data);
+}
+
+fn save_chunk(data: ResponseInfo) {
+    let mut file =
+        File::create(format!("chunk{}.m4s", data.chunk_id)).expect("Failed to create chunk file");
+    file.write(&data.chunk)
+        .expect("Failed to write data to chunk file");
 }
